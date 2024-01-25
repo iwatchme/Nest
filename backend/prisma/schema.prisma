@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int         @id @default(autoincrement())
+  username     String      @db.VarChar(50) @unique
+  password     String      @db.VarChar(50)
+  nick_name    String      @db.VarChar(50)
+  email        String      @db.VarChar(50)
+  head_pic     String?      @db.VarChar(100)
+  phone_number String?      @db.VarChar(20)
+  is_frozen    Boolean     @default(false)
+  is_admin     Boolean     @default(false)
+  create_time  DateTime    @default(now()) 
+  update_time  DateTime    @updatedAt @db.DateTime
+  UserRoles    UserRoles[]
+}
+
+model Roles {
+  id              Int               @id @default(autoincrement())
+  role_name       String            @db.VarChar(20)
+  UserRoles       UserRoles[]
+  RolePermissions RolePermissions[]
+}
+
+model Permissions {
+  id              Int               @id @default(autoincrement())
+  code            String            @db.VarChar(20)
+  description     String            @db.VarChar(100)
+  RolePermissions RolePermissions[]
+}
+
+model UserRoles {
+  user    User  @relation(fields: [user_id], references: [id])
+  user_id Int
+  role    Roles @relation(fields: [role_id], references: [id])
+  role_id Int
+
+  @@id([user_id, role_id])
+}
+
+model RolePermissions {
+  role    Roles       @relation(fields: [role_id], references: [id])
+  role_id Int
+  perm    Permissions @relation(fields: [perm_id], references: [id])
+  perm_id Int
+
+  @@id([role_id, perm_id])
+}
