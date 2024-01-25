@@ -1,11 +1,28 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Post,
+  Query,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { RegisterUserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 import { LoginUserDto } from './dto/login-user.dto';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { userInfo } from 'os';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @Inject(JwtService)
+  private readonly jwtService: JwtService;
+
+  @Inject(ConfigService)
+  private readonly configService: ConfigService;
 
   @Post('register')
   async register(@Body() registerUserDto: RegisterUserDto) {
@@ -19,12 +36,92 @@ export class UserController {
 
   @Post('login')
   async userLogin(@Body() user: LoginUserDto) {
-    return this.userService.login(user, false);
+    const vo = await this.userService.login(user, false);
+    vo.accessToken = this.jwtService.sign(
+      {
+        username: vo.userInfo.username,
+        id: vo.userInfo.id,
+        roles: vo.userInfo.roles,
+        permissions: vo.userInfo.permissions,
+      },
+      {
+        expiresIn: this.configService.get('JWT_ACCESS_TOKEN_EXPIRE') ?? '30m',
+      },
+    );
+
+    vo.refreshToken = this.jwtService.sign(
+      {
+        id: vo.userInfo.id,
+      },
+      {
+        expiresIn: this.configService.get('JWT_REFRESH_TOKEN_EXPIRE') ?? '30m',
+      },
+    );
+    return vo;
   }
 
   @Post('admin/login')
   async adminLogin(@Body() user: LoginUserDto) {
-    console.log(user);
-    return 'adminLogin';
+    const vo = await this.userService.login(user, true);
+    vo.accessToken = this.jwtService.sign(
+      {
+        username: vo.userInfo.username,
+        id: vo.userInfo.id,
+        roles: vo.userInfo.roles,
+        permissions: vo.userInfo.permissions,
+      },
+      {
+        expiresIn: this.configService.get('JWT_ACCESS_TOKEN_EXPIRE') ?? '30m',
+      },
+    );
+
+    vo.refreshToken = this.jwtService.sign(
+      {
+        id: vo.userInfo.id,
+      },
+      {
+        expiresIn: this.configService.get('JWT_REFRESH_TOKEN_EXPIRE') ?? '30m',
+      },
+    );
+    return vo;
+  }
+
+  @Get('refresh')
+  async refreshToken(
+    @Query('refreshToken') refreshToken: string,
+    @Query('isAdmin') isAdmin: string,
+  ) {
+    try {
+      const data = await this.jwtService.verify(refreshToken);
+      const userInfo = await this.userService.findUserById(
+        data.id,
+        isAdmin === 'true',
+      );
+      const accessToken = this.jwtService.sign(
+        {
+          username: userInfo.username,
+          id: userInfo.id,
+          roles: userInfo.roles,
+          permissions: userInfo.permissions,
+        },
+        {
+          expiresIn: this.configService.get('JWT_ACCESS_TOKEN_EXPIRE') ?? '30m',
+        },
+      );
+
+      refreshToken = this.jwtService.sign(
+        {
+          id: userInfo.id,
+        },
+        {
+          expiresIn:
+            this.configService.get('JWT_REFRESH_TOKEN_EXPIRE') ?? '30m',
+        },
+      );
+      return { accessToken, refreshToken };
+    } catch (e) {
+      console.log(e);
+      throw new UnauthorizedException('token 已经失效请重新登录');
+    }
   }
 }

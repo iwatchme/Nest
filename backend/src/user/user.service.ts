@@ -1,19 +1,12 @@
-import {
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-  INestApplication,
-} from '@nestjs/common';
-import { Roles, User } from '@prisma/client';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RedisService } from 'src/redis/redis.service';
-import { md5 } from '../util/crypto';
-import { RegisterUserDto } from './dto/user.dto';
 import { EmailService } from '../email/email.service';
+import { md5 } from '../util/crypto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { LoginUserVo } from './dto/login-user.vo';
-import { userInfo } from 'os';
+import { RegisterUserDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -77,6 +70,51 @@ export class UserService {
     });
 
     return 'success';
+  }
+
+  async findUserById(id: number, isAdmin: boolean) {
+    console.log(id, isAdmin);
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id,
+        is_admin: isAdmin,
+      },
+      include: {
+        UserRoles: {
+          include: {
+            role: {
+              include: {
+                RolePermissions: {
+                  include: {
+                    perm: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new HttpException('用户不存在', HttpStatus.BAD_REQUEST);
+    }
+
+    return {
+      id: user.id,
+      username: user.username,
+      nickName: user.nick_name,
+      email: user.email,
+      headPic: user.head_pic,
+      phoneNumber: user.phone_number,
+      isFrozen: user.is_frozen,
+      isAdmin: user.is_admin,
+      createTime: user.create_time.getTime(),
+      roles: user.UserRoles.map((item) => item.role.role_name),
+      permissions: user.UserRoles.map((item) => item.role.RolePermissions)
+        .flat()
+        .map((item) => item.perm.code),
+    };
   }
 
   async login(loginUserDto: LoginUserDto, isAdmin: boolean) {
