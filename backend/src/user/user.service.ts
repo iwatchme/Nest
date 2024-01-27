@@ -7,6 +7,9 @@ import { md5 } from '../util/crypto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { LoginUserVo } from './dto/login-user.vo';
 import { RegisterUserDto } from './dto/user.dto';
+import { UserDetailVo } from './dto/user-info.vo';
+import { UpdateUserPasswordDto } from './dto/update-password.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -36,6 +39,38 @@ export class UserService {
       to: address,
       subject: '注册验证码',
       html: `<p>你的注册验证码是 ${captcha}</p>`,
+    });
+    return '发送成功';
+  }
+
+  async getCaptchaForChangePassword(address: string) {
+    const captcha = Math.random().toString().slice(2, 8);
+    await this.redisService.set(
+      `update_password_captcha__${address}`,
+      captcha,
+      5 * 60,
+    );
+
+    await this.emailService.sendMail({
+      to: address,
+      subject: '更换密码验证码',
+      html: `<p>你的更换密码验证码是 ${captcha}</p>`,
+    });
+    return '发送成功';
+  }
+
+  async getCaptchaForChangeUserInfo(address: string) {
+    const captcha = Math.random().toString().slice(2, 8);
+    await this.redisService.set(
+      `update_user_captcha_${address}`,
+      captcha,
+      5 * 60,
+    );
+
+    await this.emailService.sendMail({
+      to: address,
+      subject: '更改用户信息验证码',
+      html: `<p>你的验证码是 ${captcha}</p>`,
     });
     return '发送成功';
   }
@@ -70,6 +105,25 @@ export class UserService {
     });
 
     return 'success';
+  }
+
+  async getUserInfoById(id: number) {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!user) {
+      return null;
+    }
+    const vo = new UserDetailVo();
+    vo.id = user.id;
+    vo.username = user.username;
+    vo.nickName = user.nick_name;
+    vo.email = user.email;
+    vo.isFrozen = user.is_frozen;
+    vo.createTime = user.create_time;
+    return vo;
   }
 
   async findUserById(id: number, isAdmin: boolean) {
@@ -152,6 +206,10 @@ export class UserService {
       throw new HttpException('用户不存在', HttpStatus.BAD_REQUEST);
     }
 
+    if (user.password != md5(loginUserDto.password)) {
+      throw new HttpException('密码错误', HttpStatus.BAD_REQUEST);
+    }
+
     const vo = new LoginUserVo();
     vo.userInfo = {
       id: user.id,
@@ -175,5 +233,88 @@ export class UserService {
         }),
     };
     return vo;
+  }
+
+  async updatePassword(userId: number, passwordDto: UpdateUserPasswordDto) {
+    const captcha = await this.redisService.get(
+      `update_password_captcha_${passwordDto.email}`,
+    );
+
+    if (!captcha) {
+      throw new HttpException('验证码已失效', HttpStatus.BAD_REQUEST);
+    }
+
+    if (passwordDto.captcha !== captcha) {
+      throw new HttpException('验证码不正确', HttpStatus.BAD_REQUEST);
+    }
+
+    const foundUser = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!foundUser) {
+      throw new HttpException('用户不存在', HttpStatus.BAD_REQUEST);
+    }
+
+    foundUser.password = md5(passwordDto.password);
+
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          password: foundUser.password,
+        },
+      });
+      return '密码修改成功';
+    } catch (e) {
+      return '密码修改失败';
+    }
+  }
+
+  async update(userId: number, updateUserDto: UpdateUserDto) {
+    const captcha = await this.redisService.get(
+      `update_user_captcha_${updateUserDto.email}`,
+    );
+
+    if (!captcha) {
+      throw new HttpException('验证码已失效', HttpStatus.BAD_REQUEST);
+    }
+
+    if (updateUserDto.captcha !== captcha) {
+      throw new HttpException('验证码不正确', HttpStatus.BAD_REQUEST);
+    }
+
+    const foundUser = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!foundUser) {
+      throw new HttpException('用户不存在', HttpStatus.BAD_REQUEST);
+    }
+
+    if (updateUserDto.nickName) {
+      foundUser.nick_name = updateUserDto.nickName;
+    }
+    if (updateUserDto.headPic) {
+      foundUser.head_pic = updateUserDto.headPic;
+    }
+
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: userId,
+        },
+        data: foundUser,
+      });
+      return '用户信息修改成功';
+    } catch (e) {
+      return '用户信息修改成功';
+    }
   }
 }

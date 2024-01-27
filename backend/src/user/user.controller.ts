@@ -5,6 +5,7 @@ import {
   Inject,
   Post,
   Query,
+  Req,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -12,6 +13,10 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/user.dto';
 import { UserService } from './user.service';
+import { UserInfo } from 'src/util/custom.decorator';
+import { RequireLogin } from '../util/custom.decorator';
+import { UpdateUserPasswordDto } from './dto/update-password.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -31,6 +36,16 @@ export class UserController {
   @Get('register-captcha')
   async getCaptcha(@Query('address') address: string) {
     return this.userService.getCaptcha(address);
+  }
+
+  @Get('update_password/captcha')
+  async updatePasswordCaptcha(@Query('address') address: string) {
+    return this.userService.getCaptchaForChangePassword(address);
+  }
+
+  @Get('update/captcha')
+  async updateUserInfoCaptcha(@Query('address') address: string) {
+    return this.userService.getCaptchaForChangeUserInfo(address);
   }
 
   @Post('login')
@@ -122,5 +137,29 @@ export class UserController {
       console.log(e);
       throw new UnauthorizedException('token 已经失效请重新登录');
     }
+  }
+
+  @Get('info')
+  @RequireLogin()
+  async getInfo(@UserInfo('id') userId: number) {
+    return this.userService.getUserInfoById(userId);
+  }
+
+  @Post(['update_password', 'admin/update_password'])
+  @RequireLogin()
+  async updatePassword(
+    @UserInfo('id') userId: number,
+    @Body() password: UpdateUserPasswordDto,
+  ) {
+    return await this.userService.updatePassword(userId, password);
+  }
+
+  @Post(['update', 'admin/update'])
+  @RequireLogin()
+  async update(
+    @UserInfo('userId') userId: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return await this.userService.update(userId, updateUserDto);
   }
 }
