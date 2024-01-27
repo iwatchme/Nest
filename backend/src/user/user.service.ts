@@ -113,7 +113,13 @@ export class UserService {
       roles: user.UserRoles.map((item) => item.role.role_name),
       permissions: user.UserRoles.map((item) => item.role.RolePermissions)
         .flat()
-        .map((item) => item.perm.code),
+        .map((item) => {
+          return {
+            id: item.perm.id,
+            code: item.perm.code,
+            desc: item.perm.description,
+          };
+        }),
     };
   }
 
@@ -160,7 +166,13 @@ export class UserService {
       roles: user.UserRoles.map((item) => item.role.role_name),
       permissions: user.UserRoles.map((item) => item.role.RolePermissions)
         .flat()
-        .map((item) => item.perm.code),
+        .map((item) => {
+          return {
+            id: item.perm.id,
+            code: item.perm.code,
+            desc: item.perm.description,
+          };
+        }),
     };
     return vo;
   }

@@ -7,12 +7,11 @@ import {
   Query,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/user.dto';
 import { UserService } from './user.service';
-import { LoginUserDto } from './dto/login-user.dto';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { userInfo } from 'os';
 
 @Controller('user')
 export class UserController {
