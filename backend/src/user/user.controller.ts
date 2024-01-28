@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Get,
   Inject,
+  ParseIntPipe,
   Post,
   Query,
   Req,
@@ -13,7 +15,7 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/user.dto';
 import { UserService } from './user.service';
-import { UserInfo } from 'src/util/custom.decorator';
+import { UserInfo, generateParseIntPipe } from 'src/util/custom.decorator';
 import { RequireLogin } from '../util/custom.decorator';
 import { UpdateUserPasswordDto } from './dto/update-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -161,5 +163,27 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
   ) {
     return await this.userService.update(userId, updateUserDto);
+  }
+
+  @Get('freeze')
+  async freeze(@Query('id', ParseIntPipe) userId: number) {
+    console.log(typeof userId);
+    await this.userService.freezeUserById(userId);
+    return 'success';
+  }
+
+  @Get('list')
+  async list(
+    @Query('pageNo', new DefaultValuePipe(1), generateParseIntPipe('pageNo'))
+    page: number,
+    @Query(
+      'pageSize',
+      new DefaultValuePipe(2),
+      generateParseIntPipe('pageSize'),
+    )
+    size: number,
+  ) {
+    console.log(page, size);
+    return this.userService.list(page, size);
   }
 }

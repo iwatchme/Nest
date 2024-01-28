@@ -2,6 +2,8 @@ import {
   SetMetadata,
   createParamDecorator,
   ExecutionContext,
+  ParseIntPipe,
+  BadRequestException,
 } from '@nestjs/common';
 import { Request } from 'express';
 
@@ -20,3 +22,11 @@ export const UserInfo = createParamDecorator(
     return data ? request.user[data] : request.user;
   },
 );
+
+export function generateParseIntPipe(name: string) {
+  return new ParseIntPipe({
+    exceptionFactory() {
+      throw new BadRequestException(name + ' 应该传数字');
+    },
+  });
+}

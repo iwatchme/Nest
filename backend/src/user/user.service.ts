@@ -6,10 +6,10 @@ import { EmailService } from '../email/email.service';
 import { md5 } from '../util/crypto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { LoginUserVo } from './dto/login-user.vo';
-import { RegisterUserDto } from './dto/user.dto';
-import { UserDetailVo } from './dto/user-info.vo';
 import { UpdateUserPasswordDto } from './dto/update-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserDetailVo } from './dto/user-info.vo';
+import { RegisterUserDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -316,5 +316,44 @@ export class UserService {
     } catch (e) {
       return '用户信息修改成功';
     }
+  }
+
+  async freezeUserById(userId: number) {
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          is_frozen: true,
+        },
+      });
+      return '用户冻结成功';
+    } catch (e) {
+      console.log(e);
+      return '用户冻结失败';
+    }
+  }
+
+  async list(page: number, perPage: number) {
+    const users = await this.prismaService.user.findMany({
+      take: perPage,
+      skip: (page - 1) * perPage,
+      // 添加你的其他查询条件
+    });
+    const result = users.map((user) => {
+      const vo = new UserDetailVo();
+      vo.id = user.id;
+      vo.username = user.username;
+      vo.nickName = user.nick_name;
+      vo.email = user.email;
+      vo.isFrozen = user.is_frozen;
+      vo.createTime = user.create_time;
+      return vo;
+    });
+
+    const total = await this.prismaService.user.count();
+
+    return { data: result, total: total };
   }
 }
