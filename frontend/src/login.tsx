@@ -1,23 +1,27 @@
 import { Button, Form, Input, message } from "antd";
-import React from "react";
+import React, { useCallback } from "react";
 import "./css/login.css";
 import { login } from "./Api";
+import { useNavigate } from "react-router-dom";
 
 export interface LoginUserInfo {
   username: string;
   password: string;
 }
 
-const finish = async (values: LoginUserInfo) => {
-  const response = await login(values);
-  if (response.data?.code === 200 || response.data?.code === 201) {
-    message.success("登录成功");
-  } else {
-    message.error(response.data?.data ?? "登录失败");
-  }
-};
-
 const Login: React.FC = () => {
+  const navigate = useNavigate();
+  const finish = useCallback(async (values: LoginUserInfo) => {
+    const response = await login(values);
+    if (response.data?.code === 200 || response.data?.code === 201) {
+      message.success("登录成功");
+      setTimeout(() => {
+        navigate("/");
+      });
+    } else {
+      message.error(response.data?.data ?? "登录失败");
+    }
+  }, []);
   return (
     <div id="login-container">
       <h1>会议室预定系统</h1>

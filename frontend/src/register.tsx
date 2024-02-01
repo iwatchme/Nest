@@ -5,6 +5,7 @@ import { useForm } from "antd/es/form/Form";
 import { register, registerCaptcha } from "./Api";
 import "./css/register.css";
 import { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 
 export interface RegisterUser {
   username: string;
@@ -14,19 +15,6 @@ export interface RegisterUser {
   email: string;
   captcha: string;
 }
-
-const onFinish = async (values: RegisterUser) => {
-  if (values.password !== values.confirmPassword) {
-    return message.error("两次密码不一致");
-  }
-  const res = await register(values);
-
-  if (res.status === 201 || res.status === 200) {
-    message.success("注册成功");
-  } else {
-    message.error(res.data.data || "系统繁忙，请稍后再试");
-  }
-};
 
 const layout1 = {
   labelCol: { span: 6 },
@@ -40,6 +28,23 @@ const layout2 = {
 
 const Register: React.FC = () => {
   const [form] = useForm();
+  const navigate = useNavigate();
+
+  const onFinish = useCallback(async (values: RegisterUser) => {
+    if (values.password !== values.confirmPassword) {
+      return message.error("两次密码不一致");
+    }
+    const res = await register(values);
+
+    if (res.status === 201 || res.status === 200) {
+      message.success("注册成功");
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
+    } else {
+      message.error(res.data.data || "系统繁忙，请稍后再试");
+    }
+  }, []);
 
   const sendCaptcha = useCallback(async function () {
     const address = form.getFieldValue("email");
