@@ -1,0 +1,28 @@
+import axios from "axios";
+import { LoginUserInfo } from "./login";
+
+const client = axios.create({
+  baseURL: "http://localhost:3000",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+client.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  async (error) => {
+    return error.response;
+  }
+);
+
+export interface CustomResponse<T> {
+  code: number;
+  message: string;
+  data?: T;
+}
+
+export async function login(loginInfo: LoginUserInfo) {
+  return await client.post<CustomResponse<string>>("/user/login", loginInfo);
+}

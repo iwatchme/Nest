@@ -1,16 +1,22 @@
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, message } from "antd";
 import React from "react";
 import "./css/login.css";
+import { login } from "./Api";
 
-interface LoginUserInfo {
+export interface LoginUserInfo {
   username: string;
   password: string;
 }
 
-const finish = (values: LoginUserInfo) => {
-  console.log(values);
+const finish = async (values: LoginUserInfo) => {
+  const response = await login(values);
+  if (response.status === 200) {
+    message.success("登录成功");
+  } else {
+    console.log(response.data?.data);
+    message.error(response.data?.data ?? "登录失败");
+  }
 };
-
 
 const Login: React.FC = () => {
   return (
@@ -37,18 +43,18 @@ const Login: React.FC = () => {
         >
           <Input.Password></Input.Password>
         </Form.Item>
+        <Form.Item labelCol={{ span: 0 }} wrapperCol={{ span: 24 }}>
+          <div className="links">
+            <a href="">创建账号</a>
+            <a href="">忘记密码</a>
+          </div>
+        </Form.Item>
+        <Form.Item labelCol={{ span: 0 }} wrapperCol={{ span: 24 }}>
+          <Button className="btn" type="primary" htmlType="submit">
+            登录
+          </Button>
+        </Form.Item>
       </Form>
-      <Form.Item labelCol={{ span: 0 }} wrapperCol={{ span: 24 }}>
-        <div className="links">
-          <a href="">创建账号</a>
-          <a href="">忘记密码</a>
-        </div>
-      </Form.Item>
-      <Form.Item labelCol={{ span: 0 }} wrapperCol={{ span: 24 }}>
-        <Button className="btn" type="primary" htmlType="submit">
-          登录
-        </Button>
-      </Form.Item>
     </div>
   );
 };
