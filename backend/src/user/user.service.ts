@@ -33,6 +33,7 @@ export class UserService {
 
   async getCaptcha(address: string) {
     const captcha = Math.random().toString().slice(2, 8);
+    console.log(captcha);
     await this.redisService.set(`captcha_${address}`, captcha, 5 * 60);
 
     await this.emailService.sendMail({

@@ -10,10 +10,9 @@ export interface LoginUserInfo {
 
 const finish = async (values: LoginUserInfo) => {
   const response = await login(values);
-  if (response.status === 200) {
+  if (response.data?.code === 200 || response.data?.code === 201) {
     message.success("登录成功");
   } else {
-    console.log(response.data?.data);
     message.error(response.data?.data ?? "登录失败");
   }
 };

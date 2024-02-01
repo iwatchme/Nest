@@ -26,3 +26,11 @@ export interface CustomResponse<T> {
 export async function login(loginInfo: LoginUserInfo) {
   return await client.post<CustomResponse<string>>("/user/login", loginInfo);
 }
+
+export async function registerCaptcha(email: string) {
+    return await client.get('/user/register-captcha', {
+        params: {
+            address: email
+        }
+    });
+}
