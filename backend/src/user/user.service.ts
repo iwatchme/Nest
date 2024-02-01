@@ -178,6 +178,7 @@ export class UserService {
   }
 
   async login(loginUserDto: LoginUserDto, isAdmin: boolean) {
+    console.log(loginUserDto);
     const user = await this.prismaService.user.findUnique({
       where: {
         username: loginUserDto.username,

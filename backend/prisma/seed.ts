@@ -1,13 +1,20 @@
 import { PrismaClient } from '@prisma/client';
+import * as crypto from 'crypto';
 const prisma = new PrismaClient();
+
+export function md5(str) {
+  const hash = crypto.createHash('md5');
+  hash.update(str);
+  return hash.digest('hex');
+}
 
 async function main() {
   const user = await prisma.user.create({
     data: {
       username: 'alice',
-      password: '123456',
+      password: md5('123456'),
       email: 'xxx@xxx.com',
-      is_admin: true,
+      is_admin: false,
       nick_name: 'Alice',
       phone_number: '12345678901',
 
@@ -36,7 +43,7 @@ async function main() {
   const user2 = await prisma.user.create({
     data: {
       username: 'jack',
-      password: '3333333',
+      password: md5('3333333'),
       email: 'xxx@xxx222.com',
       is_admin: true,
       nick_name: 'ssss',

@@ -7,18 +7,17 @@ import {
   ParseIntPipe,
   Post,
   Query,
-  Req,
-  UnauthorizedException,
+  UnauthorizedException
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { LoginUserDto } from './dto/login-user.dto';
-import { RegisterUserDto } from './dto/user.dto';
-import { UserService } from './user.service';
 import { UserInfo, generateParseIntPipe } from 'src/util/custom.decorator';
 import { RequireLogin } from '../util/custom.decorator';
+import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserPasswordDto } from './dto/update-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { RegisterUserDto } from './dto/user.dto';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
