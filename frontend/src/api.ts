@@ -1,5 +1,6 @@
 import axios from "axios";
 import { LoginUserInfo } from "./login";
+import { RegisterUser } from './register';
 
 const client = axios.create({
   baseURL: "http://localhost:3000",
@@ -33,4 +34,8 @@ export async function registerCaptcha(email: string) {
             address: email
         }
     });
+}
+
+export async function register(registerUser: RegisterUser) {
+  return await client.post('/user/register', registerUser);
 }
