@@ -1,8 +1,9 @@
 import { Button, Form, Input, message } from "antd";
 import React, { useCallback } from "react";
 import "./css/login.css";
-import { login } from "./Api";
+import { login } from "./net/api";
 import { useNavigate } from "react-router-dom";
+import { LoginUser } from "./net/loginUser";
 
 export interface LoginUserInfo {
   username: string;
@@ -13,13 +14,18 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const finish = useCallback(async (values: LoginUserInfo) => {
     const response = await login(values);
+    console.log(`11 ${response.data.data}`);
     if (response.data?.code === 200 || response.data?.code === 201) {
       message.success("登录成功");
+      const user = response.data.data as LoginUser;
+      localStorage.setItem("access_token", user?.accessToken ?? "");
+      localStorage.setItem("refresh_token", user?.refreshToken ?? "");
+      localStorage.setItem("user_info", JSON.stringify(user?.userInfo ?? {}));
       setTimeout(() => {
         navigate("/");
       });
     } else {
-      message.error(response.data?.data ?? "登录失败");
+      message.error((response.data?.data as string) ?? "登录失败");
     }
   }, []);
   return (

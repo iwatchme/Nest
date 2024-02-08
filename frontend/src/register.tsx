@@ -2,7 +2,7 @@ import { Button, Form, Input, message } from "antd";
 import { RegisterUserDto } from "../../backend/src/user/dto/user.dto";
 import form from "antd/es/form";
 import { useForm } from "antd/es/form/Form";
-import { register, registerCaptcha } from "./Api";
+import { register, registerCaptcha } from "./net/api";
 import "./css/register.css";
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";

@@ -7,7 +7,7 @@ import {
   ParseIntPipe,
   Post,
   Query,
-  UnauthorizedException
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -45,7 +45,9 @@ export class UserController {
   }
 
   @Get('update/captcha')
-  async updateUserInfoCaptcha(@Query('address') address: string) {
+  @RequireLogin()
+  async updateUserInfoCaptcha(@UserInfo('email') address: string) {
+    console.log(address);
     return this.userService.getCaptchaForChangeUserInfo(address);
   }
 
@@ -55,6 +57,7 @@ export class UserController {
     vo.accessToken = this.jwtService.sign(
       {
         username: vo.userInfo.username,
+        email: vo.userInfo.email,
         id: vo.userInfo.id,
         roles: vo.userInfo.roles,
         permissions: vo.userInfo.permissions,
@@ -81,6 +84,7 @@ export class UserController {
     vo.accessToken = this.jwtService.sign(
       {
         username: vo.userInfo.username,
+        email: vo.userInfo.email,
         id: vo.userInfo.id,
         roles: vo.userInfo.roles,
         permissions: vo.userInfo.permissions,
@@ -115,6 +119,7 @@ export class UserController {
       const accessToken = this.jwtService.sign(
         {
           username: userInfo.username,
+          email: userInfo.email,
           id: userInfo.id,
           roles: userInfo.roles,
           permissions: userInfo.permissions,
@@ -147,20 +152,17 @@ export class UserController {
   }
 
   @Post(['update_password', 'admin/update_password'])
-  @RequireLogin()
-  async updatePassword(
-    @UserInfo('id') userId: number,
-    @Body() password: UpdateUserPasswordDto,
-  ) {
-    return await this.userService.updatePassword(userId, password);
+  async updatePassword(@Body() password: UpdateUserPasswordDto) {
+    return await this.userService.updatePassword(password);
   }
 
   @Post(['update', 'admin/update'])
   @RequireLogin()
   async update(
-    @UserInfo('userId') userId: number,
+    @UserInfo('id') userId: number,
     @Body() updateUserDto: UpdateUserDto,
   ) {
+    console.log(userId);
     return await this.userService.update(userId, updateUserDto);
   }
 

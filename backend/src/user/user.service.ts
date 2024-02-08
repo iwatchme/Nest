@@ -47,7 +47,7 @@ export class UserService {
   async getCaptchaForChangePassword(address: string) {
     const captcha = Math.random().toString().slice(2, 8);
     await this.redisService.set(
-      `update_password_captcha__${address}`,
+      `update_password_captcha_${address}`,
       captcha,
       5 * 60,
     );
@@ -124,6 +124,7 @@ export class UserService {
     vo.email = user.email;
     vo.isFrozen = user.is_frozen;
     vo.createTime = user.create_time;
+    vo.headPic = user.head_pic ?? '';
     return vo;
   }
 
@@ -237,10 +238,12 @@ export class UserService {
     return vo;
   }
 
-  async updatePassword(userId: number, passwordDto: UpdateUserPasswordDto) {
+  async updatePassword(passwordDto: UpdateUserPasswordDto) {
+    console.log(`${passwordDto.email}`);
     const captcha = await this.redisService.get(
       `update_password_captcha_${passwordDto.email}`,
     );
+    console.log(`captcha: ${captcha}`);
 
     if (!captcha) {
       throw new HttpException('验证码已失效', HttpStatus.BAD_REQUEST);
@@ -252,7 +255,7 @@ export class UserService {
 
     const foundUser = await this.prismaService.user.findUnique({
       where: {
-        id: userId,
+        username: passwordDto.username,
       },
     });
 
@@ -260,12 +263,16 @@ export class UserService {
       throw new HttpException('用户不存在', HttpStatus.BAD_REQUEST);
     }
 
+    if (foundUser.email !== passwordDto.email) {
+      throw new HttpException('邮箱不正确', HttpStatus.BAD_REQUEST);
+    }
+
     foundUser.password = md5(passwordDto.password);
 
     try {
       await this.prismaService.user.update({
         where: {
-          id: userId,
+          username: passwordDto.username,
         },
         data: {
           password: foundUser.password,
@@ -316,7 +323,7 @@ export class UserService {
       });
       return '用户信息修改成功';
     } catch (e) {
-      return '用户信息修改成功';
+      return '用户信息修改失败';
     }
   }
 

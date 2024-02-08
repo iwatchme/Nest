@@ -14,6 +14,7 @@ import { Permission } from 'src/user/dto/login-user.vo';
 export interface JwtUserData {
   id: number;
   username: string;
+  email: string;
   roles: string[];
   permissions: Permission[];
 }
@@ -54,16 +55,18 @@ export class LoginGuard implements CanActivate {
 
     try {
       const data = this.jwtService.verify<JwtUserData>(authorization);
+      console.log(`stringify data: ${JSON.stringify(data)}`);
       const user: JwtUserData = {
         id: data.id,
         username: data.username,
+        email: data.email,
         roles: data.roles,
         permissions: data.permissions,
       };
       request.user = user;
       return true;
     } catch (e) {
-      throw new UnauthorizedException('token 已经失效请重新登录');
+      throw new UnauthorizedException('token已经失效请重新登录');
     }
 
     return true;
