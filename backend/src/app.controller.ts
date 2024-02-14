@@ -1,7 +1,6 @@
-import { Controller, Get, Inject, SetMetadata } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Get, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { setMaxIdleHTTPParsers } from 'http';
+import { AppService } from './app.service';
 import { RequireLogin, RequirePermission } from './util/custom.decorator';
 
 @Controller()

@@ -1,18 +1,24 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   DefaultValuePipe,
   Get,
+  HttpCode,
   Inject,
   ParseIntPipe,
   Post,
   Query,
   UnauthorizedException,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { UserInfo, generateParseIntPipe } from 'src/util/custom.decorator';
 import { RequireLogin } from '../util/custom.decorator';
+import { customStorage } from '../util/customstogre';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserPasswordDto } from './dto/update-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -186,5 +192,32 @@ export class UserController {
   ) {
     console.log(page, size);
     return this.userService.list(page, size);
+  }
+
+  @Post('upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      dest: 'uploads',
+      limits: {
+        fieldSize: 1024 * 1024 * 10,
+      },
+      storage: customStorage,
+      fileFilter: (req, file, cb) => {
+        file.originalname = Buffer.from(file.originalname, 'latin1').toString(
+          'utf8',
+        );
+        const extensionRegex = /\.(png|jpe?g|gif)$/i;
+        console.log(`${extensionRegex.test(file.originalname)}`);
+        console.log(`${file.originalname}`);
+        extensionRegex.test(file.originalname)
+          ? cb(null, true)
+          : cb(new BadRequestException('只允许上传图片'), false);
+      },
+    }),
+  )
+  @HttpCode(200)
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    console.log(file.path);
+    return file.path;
   }
 }

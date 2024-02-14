@@ -4,6 +4,7 @@ import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../css/updateInfo.css";
 import { getUserInfo, updateInfo, updateUserInfoCaptcha } from "../../net/api";
+import HeadPic from "./headerpic";
 
 export interface UserInfo {
   headPic: string;
@@ -74,8 +75,9 @@ const UpdateInfo: React.FC = () => {
           label="头像"
           name="headPic"
           rules={[{ required: true, message: "请输入头像!" }]}
+          shouldUpdate
         >
-          <Input />
+          <HeadPic></HeadPic>
         </Form.Item>
 
         <Form.Item
