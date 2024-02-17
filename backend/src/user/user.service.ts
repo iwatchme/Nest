@@ -365,4 +365,42 @@ export class UserService {
 
     return { data: result, total: total };
   }
+
+  async findUsers(
+    username: string,
+    nickName: string,
+    email: string,
+    page: number,
+    perPage: number,
+  ) {
+    console.log(username, nickName, email, page, perPage);
+    const users = await this.prismaService.user.findMany({
+      take: perPage,
+      skip: (page - 1) * perPage,
+      where: {
+        username: {
+          contains: username,
+        },
+        nick_name: {
+          contains: nickName,
+        },
+        email: {
+          contains: email,
+        },
+      },
+    });
+
+    const result = users.map((user) => {
+      const vo = new UserDetailVo();
+      vo.id = user.id;
+      vo.username = user.username;
+      vo.nickName = user.nick_name;
+      vo.email = user.email;
+      vo.isFrozen = user.is_frozen;
+      vo.createTime = user.create_time;
+      return vo;
+    });
+
+    return { data: result, total: users.length };
+  }
 }

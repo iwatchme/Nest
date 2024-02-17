@@ -2,9 +2,9 @@ import axios from "axios";
 import { LoginUserInfo } from "../login";
 import { RegisterUser } from "../register";
 import { UpdatePassword } from "../updatepassword";
-import { UserInfo } from "../page/update_info/updateInfo";
 import { message } from "antd";
 import { LoginUser } from "./loginUser";
+import { UserInfo } from "../page/update_info/updateInfo";
 
 let refreshing = false;
 const queue: PendingTask[] = [];
@@ -110,6 +110,13 @@ export async function login(loginInfo: LoginUserInfo) {
   );
 }
 
+export async function adminLogin(loginInfo: LoginUserInfo) {
+  return await client.post<LoginSuccessResponse | FailedResponse>(
+    "/user/admin/login",
+    loginInfo
+  );
+}
+
 export async function registerCaptcha(email: string) {
   return await client.get("/user/register-captcha", {
     params: {
@@ -152,5 +159,53 @@ export async function updateInfo(data: UserInfo) {
 export async function updateUserInfoCaptcha() {
   return await client.get<BaseResponse & { data: string }>(
     "/user/update/captcha"
+  );
+}
+
+interface UserSeachResult {
+  id: number;
+
+  username: string;
+
+  nickName: string;
+
+  email: string;
+
+  headPic: string;
+
+  phoneNumber: string;
+
+  isFrozen: boolean;
+
+  createTime: Date;
+}
+
+export type UserSearchSuccessData = {
+  data: UserSeachResult[];
+  total: number;
+};
+
+export type UserSearchSuccessResponse = BaseResponse & {
+  data: UserSearchSuccessData;
+};
+
+export async function userSearch(
+  username: string,
+  nickName: string,
+  email: string,
+  pageNo: number,
+  pageSize: number
+) {
+  return await client.get<UserSearchSuccessResponse | FailedResponse>(
+    "/user/search",
+    {
+      params: {
+        username,
+        nickName,
+        email,
+        pageNo,
+        pageSize,
+      },
+    }
   );
 }

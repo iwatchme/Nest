@@ -14,7 +14,7 @@ async function main() {
       username: 'alice',
       password: md5('123456'),
       email: 'xxx@xxx.com',
-      is_admin: false,
+      is_admin: true,
       nick_name: 'Alice',
       phone_number: '12345678901',
 
@@ -45,7 +45,7 @@ async function main() {
       username: 'jack',
       password: md5('3333333'),
       email: 'xxx@xxx222.com',
-      is_admin: true,
+      is_admin: false,
       nick_name: 'ssss',
       phone_number: '1234567833333',
 

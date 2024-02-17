@@ -194,6 +194,31 @@ export class UserController {
     return this.userService.list(page, size);
   }
 
+  @Get('search')
+  @RequireLogin()
+  async searchUserList(
+    @Query('pageNo', new DefaultValuePipe(1), generateParseIntPipe('pageNo'))
+    page: number,
+    @Query(
+      'pageSize',
+      new DefaultValuePipe(2),
+      generateParseIntPipe('pageSize'),
+    )
+    size: number,
+    @Query('username') username: string,
+    @Query('nickName') nickName: string,
+    @Query('email') email: string,
+  ) {
+    console.log(`111: ${page} ${size} ${username} ${nickName} ${email}`);
+    return await this.userService.findUsers(
+      username,
+      nickName,
+      email,
+      page,
+      size,
+    );
+  }
+
   @Post('upload')
   @UseInterceptors(
     FileInterceptor('file', {
