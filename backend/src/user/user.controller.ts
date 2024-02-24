@@ -209,7 +209,6 @@ export class UserController {
     @Query('nickName') nickName: string,
     @Query('email') email: string,
   ) {
-    console.log(`111: ${page} ${size} ${username} ${nickName} ${email}`);
     return await this.userService.findUsers(
       username,
       nickName,

@@ -398,6 +398,7 @@ export class UserService {
       vo.email = user.email;
       vo.isFrozen = user.is_frozen;
       vo.createTime = user.create_time;
+      vo.headPic = user.head_pic ?? '';
       return vo;
     });
 

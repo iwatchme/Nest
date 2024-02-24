@@ -21,7 +21,7 @@ const AdminLogin: React.FC = () => {
       localStorage.setItem("refresh_token", user?.refreshToken ?? "");
       localStorage.setItem("user_info", JSON.stringify(user?.userInfo ?? {}));
       setTimeout(() => {
-        navigate("/admin");
+        navigate("/admin/home/user_manager");
       });
     } else {
       message.error((response.data?.data as string) ?? "登录失败");

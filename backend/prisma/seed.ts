@@ -13,7 +13,7 @@ async function main() {
     data: {
       username: 'alice',
       password: md5('123456'),
-      email: 'xxx@xxx.com',
+      email: 'yangxiao82739671@gmail.com',
       is_admin: true,
       nick_name: 'Alice',
       phone_number: '12345678901',
@@ -44,7 +44,7 @@ async function main() {
     data: {
       username: 'jack',
       password: md5('3333333'),
-      email: 'xxx@xxx222.com',
+      email: 'yangxiao621@126.com',
       is_admin: false,
       nick_name: 'ssss',
       phone_number: '1234567833333',

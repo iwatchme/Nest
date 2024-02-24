@@ -1,5 +1,5 @@
-import { Button, Form, Input, message } from "antd";
-import { useCallback, useState } from "react";
+import { Button, Form, Input, message, Image } from "antd";
+import { useCallback, useEffect, useState } from "react";
 import "../../css/usermanager.css";
 import Table, { ColumnsType } from "antd/es/table";
 import { UserSearchSuccessData, userSearch } from "../../net/api";
@@ -15,7 +15,7 @@ interface UserSearchResult {
   username: string;
   nickName: string;
   email: string;
-  headPic: string;
+  headPic?: string;
   createTime: Date;
 }
 const columns: ColumnsType<UserSearchResult> = [
@@ -26,6 +26,10 @@ const columns: ColumnsType<UserSearchResult> = [
   {
     title: "头像",
     dataIndex: "headPic",
+    render: (text, record: UserSearchResult, index) => {
+      console.log(record.headPic);
+      return record.headPic ? <Image width={50} src={record.headPic} /> : "";
+    },
   },
   {
     title: "昵称",
@@ -41,29 +45,23 @@ const columns: ColumnsType<UserSearchResult> = [
   },
 ];
 
-const data = [
-  {
-    key: "1",
-    username: "xx",
-    headPic: "xxx.png",
-    nickName: "xxx",
-    email: "xx@xx.com",
-    createTime: new Date(),
-  },
-  {
-    key: "12",
-    username: "yy",
-    headPic: "yy.png",
-    nickName: "yyy",
-    email: "yy@yy.com",
-    createTime: new Date(),
-  },
-];
-
 const UserManager: React.FC = () => {
   const [pageNo, setPageNo] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const [userResult, setUserResult] = useState<UserSearchResult[]>();
+
+  useEffect(() => {
+    searchUser({
+      username: "",
+      email: "",
+      nickName: "",
+    });
+  }, [pageNo, pageSize]);
+
+  const changePage = useCallback(function (pageNo: number, pageSize: number) {
+    setPageNo(pageNo);
+    setPageSize(pageSize);
+  }, []);
 
   const searchUser = useCallback(async (values: SearchUser) => {
     const response = await userSearch(
@@ -119,7 +117,9 @@ const UserManager: React.FC = () => {
           columns={columns}
           dataSource={userResult}
           pagination={{
-            pageSize: 10,
+            current: pageNo,
+            pageSize: pageSize,
+            onChange: changePage,
           }}
         />
       </div>
