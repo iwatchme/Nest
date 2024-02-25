@@ -3,6 +3,7 @@ import Table from "antd/es/table";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "../../css/usermanager.css";
 import { UserSearchSuccessData, freeze, userSearch } from "../../net/api";
+import { useForm } from "antd/es/form/Form";
 
 interface SearchUser {
   username: string;
@@ -24,12 +25,13 @@ const UserManager: React.FC = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const [userResult, setUserResult] = useState<UserSearchResult[]>();
   const [randomNumber, setRandomNumber] = useState<number>(0);
+  const [form] = useForm();
 
   useEffect(() => {
     searchUser({
-      username: "",
-      email: "",
-      nickName: "",
+      username: form.getFieldValue("username"),
+      email: form.getFieldValue("email"),
+      nickName: form.getFieldValue("nickName"),
     });
   }, [pageNo, pageSize, randomNumber]);
   const columns = useMemo(() => {
@@ -131,7 +133,13 @@ const UserManager: React.FC = () => {
   return (
     <div id="userManage-container">
       <div className="userManage-form">
-        <Form onFinish={searchUser} name="search" layout="inline" colon={false}>
+        <Form
+          form={form}
+          onFinish={searchUser}
+          name="search"
+          layout="inline"
+          colon={false}
+        >
           <Form.Item label="用户名" name="username">
             <Input />
           </Form.Item>
