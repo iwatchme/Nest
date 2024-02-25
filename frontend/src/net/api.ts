@@ -209,3 +209,11 @@ export async function userSearch(
     }
   );
 }
+
+export async function freeze(id: number) {
+  return await client.get<BaseResponse & {data: string}>('/user/freeze', {
+      params: {
+          id
+      }
+  });
+}
