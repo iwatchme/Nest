@@ -9,6 +9,8 @@ import { EmailModule } from './email/email.module';
 import { JwtModule } from '@nestjs/jwt';
 import { LoginGuard } from './guard/login.guard';
 import { PermissionGuard } from './guard/permission.guard';
+import { MeetingroomService } from './meetingroom/meetingroom.service';
+import { MeetingroomController } from './meetingroom/meetingroom.controller';
 
 @Module({
   imports: [
@@ -29,7 +31,7 @@ import { PermissionGuard } from './guard/permission.guard';
     PrismaModule,
     EmailModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, MeetingroomController],
   providers: [
     AppService,
     {
@@ -40,6 +42,7 @@ import { PermissionGuard } from './guard/permission.guard';
       provide: 'APP_GUARD',
       useClass: PermissionGuard,
     },
+    MeetingroomService,
   ],
 })
 export class AppModule {}

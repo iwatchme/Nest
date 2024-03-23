@@ -12,15 +12,15 @@ datasource db {
 
 model User {
   id           Int         @id @default(autoincrement())
-  username     String      @db.VarChar(50) @unique
+  username     String      @unique @db.VarChar(50)
   password     String      @db.VarChar(50)
   nick_name    String      @db.VarChar(50)
   email        String      @db.VarChar(50)
-  head_pic     String?      @db.VarChar(100)
-  phone_number String?      @db.VarChar(20)
+  head_pic     String?     @db.VarChar(100)
+  phone_number String?     @db.VarChar(20)
   is_frozen    Boolean     @default(false)
   is_admin     Boolean     @default(false)
-  create_time  DateTime    @default(now()) 
+  create_time  DateTime    @default(now())
   update_time  DateTime    @updatedAt @db.DateTime
   UserRoles    UserRoles[]
 }
@@ -55,4 +55,16 @@ model RolePermissions {
   perm_id Int
 
   @@id([role_id, perm_id])
+}
+
+model MeetingRoom {
+  id          Int     @id @default(autoincrement())
+  name        String  @db.VarChar(50)
+  capacity    Int     @db.Int
+  location    String  @db.VarChar(50)
+  equipment   String  @db.VarChar(50)
+  description String  @db.VarChar(100)
+  isBooked    Boolean @default(false)
+  create_time DateTime @default(now())
+  update_time DateTime @updatedAt @db.DateTime
 }

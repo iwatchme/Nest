@@ -71,6 +71,37 @@ async function main() {
     },
   });
 
+  const room1 = await prisma.meetingRoom.create({
+    data: {
+      name: '木星',
+      location: 'location1',
+      capacity: 10,
+      equipment: '白板',
+      description: '木星会议室',
+    },
+  });
+
+  const room2 = await prisma.meetingRoom.create({
+    data: {
+      name: '金星',
+      location: 'location2',
+      capacity: 5,
+      equipment: '投影仪',
+      description: '金星会议室',
+    },
+  });
+
+  const room3 = await prisma.meetingRoom.create({
+    data: {
+      name: '水星',
+      location: 'location3',
+      capacity: 15,
+      equipment: '',
+      description: '水星会议室',
+    },
+  });
+
+  console.log({ room1, room2, room3 });
   console.log({ user, user2 });
 }
 

@@ -156,6 +156,13 @@ export async function updateInfo(data: UserInfo) {
   );
 }
 
+export async function updateAdminInfo(data: UserInfo) {
+  return await client.post<BaseResponse & { data: string }>(
+    "/user/admin/update",
+    data
+  );
+}
+
 export async function updateUserInfoCaptcha() {
   return await client.get<BaseResponse & { data: string }>(
     "/user/update/captcha"
