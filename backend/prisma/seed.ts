@@ -9,7 +9,7 @@ export function md5(str) {
 }
 
 async function main() {
-  const user = await prisma.user.create({
+  const user1 = await prisma.user.create({
     data: {
       username: 'alice',
       password: md5('123456'),
@@ -101,8 +101,31 @@ async function main() {
     },
   });
 
+  const booking1 = await prisma.booking.create({
+    data: {
+      room_id: room1.id,
+      user_id: user1.id,
+      start_time: new Date('2021-09-01T08:00:00'),
+      end_time: new Date('2021-09-02T08:00:00'),
+      note: '预定 1',
+      status: 'approved',
+    },
+  });
+
+  const booking2 = await prisma.booking.create({
+    data: {
+      room_id: room2.id,
+      user_id: user2.id,
+      start_time: new Date('2021-09-02T08:00:00'),
+      end_time: new Date('2021-09-03T08:00:00'),
+      note: '预定 2',
+      status: 'approved',
+    },
+  });
+
   console.log({ room1, room2, room3 });
-  console.log({ user, user2 });
+  console.log({ user1, user2 });
+  console.log({ booking1, booking2 });
 }
 
 main()

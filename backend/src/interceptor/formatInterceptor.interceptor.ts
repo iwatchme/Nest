@@ -27,6 +27,7 @@ export class FormatInterceptorInterceptor<T> implements NestInterceptor {
         data,
       })),
       catchError((error) => {
+        console.log(error);
         if (error instanceof HttpException) {
           // 如果是HttpException，则直接抛出
           throw error;

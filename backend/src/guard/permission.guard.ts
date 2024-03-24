@@ -5,10 +5,9 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { JwtUserData } from './login.guard';
-import { Reflector } from '@nestjs/core';
-import { Permission } from 'src/user/dto/login-user.vo';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {

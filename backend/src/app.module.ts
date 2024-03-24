@@ -11,6 +11,8 @@ import { LoginGuard } from './guard/login.guard';
 import { PermissionGuard } from './guard/permission.guard';
 import { MeetingroomService } from './meetingroom/meetingroom.service';
 import { MeetingroomController } from './meetingroom/meetingroom.controller';
+import { BookingroomService } from './bookingroom/bookingroom.service';
+import { BookingroomController } from './bookingroom/bookingroom.controller';
 
 @Module({
   imports: [
@@ -31,7 +33,7 @@ import { MeetingroomController } from './meetingroom/meetingroom.controller';
     PrismaModule,
     EmailModule,
   ],
-  controllers: [AppController, MeetingroomController],
+  controllers: [AppController, MeetingroomController, BookingroomController],
   providers: [
     AppService,
     {
@@ -43,6 +45,7 @@ import { MeetingroomController } from './meetingroom/meetingroom.controller';
       useClass: PermissionGuard,
     },
     MeetingroomService,
+    BookingroomService,
   ],
 })
 export class AppModule {}

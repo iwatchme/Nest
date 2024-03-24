@@ -23,6 +23,7 @@ model User {
   create_time  DateTime    @default(now())
   update_time  DateTime    @updatedAt @db.DateTime
   UserRoles    UserRoles[]
+  Booking      Booking[]
 }
 
 model Roles {
@@ -58,13 +59,28 @@ model RolePermissions {
 }
 
 model MeetingRoom {
-  id          Int     @id @default(autoincrement())
-  name        String  @db.VarChar(50)
-  capacity    Int     @db.Int
-  location    String  @db.VarChar(50)
-  equipment   String  @db.VarChar(50)
-  description String  @db.VarChar(100)
-  isBooked    Boolean @default(false)
-  create_time DateTime @default(now())
-  update_time DateTime @updatedAt @db.DateTime
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(50)
+  capacity    Int       @db.Int
+  location    String    @db.VarChar(50)
+  equipment   String    @db.VarChar(50)
+  description String    @db.VarChar(100)
+  isBooked    Boolean   @default(false)
+  create_time DateTime  @default(now())
+  update_time DateTime  @updatedAt @db.DateTime
+  Booking     Booking[]
+}
+
+model Booking {
+  id          Int         @id @default(autoincrement())
+  user        User        @relation(fields: [user_id], references: [id])
+  user_id     Int
+  room        MeetingRoom @relation(fields: [room_id], references: [id])
+  room_id     Int
+  start_time  DateTime
+  end_time    DateTime
+  status      String      @db.VarChar(20)
+  note        String      @db.VarChar(100)
+  create_time DateTime    @default(now())
+  update_time DateTime    @updatedAt @db.DateTime
 }

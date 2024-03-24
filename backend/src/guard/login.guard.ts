@@ -43,11 +43,13 @@ export class LoginGuard implements CanActivate {
       [context.getHandler(), context.getClass()],
     );
 
+    console.log(`requireLogin: ${requireLogin}`);
+
     if (!requireLogin) {
       return true;
     }
 
-    const authorization = request.headers.authorization;
+    const authorization = request.headers.authorization?.replace('Bearer ', '');
 
     if (!authorization) {
       throw new UnauthorizedException('用户未登录');
